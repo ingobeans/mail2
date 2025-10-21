@@ -24,14 +24,14 @@ impl<'a> MailEngine<'a> {
 
         let world_width = ((world.x_max - world.x_min) * 8) as f32 + 16.0 * 8.0;
         let world_height = ((world.y_max - world.y_min) * 8) as f32 + 16.0 * 8.0;
-        dbg!(world_width, world_height);
+
         let mut world_camera = create_camera(world_width, world_height);
         world_camera.target = vec2(
             world_width / 2.0 - 16.0 * 8.0,
             world_height / 2. - 16.0 * 8.0,
         );
-        dbg!(world_camera.target);
         set_camera(&world_camera);
+        clear_background(BLACK.with_alpha(0.0));
         clear_background(PINK);
 
         for chunk in &world.background {
@@ -47,11 +47,15 @@ impl<'a> MailEngine<'a> {
             chunk.draw(&assets);
         }
 
+        let mut player = Player::new();
+        player.pos = vec2(0.0, -8.0);
+        player.camera_pos = vec2(0.0, -100.0);
+
         let pixel_camera = create_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
         MailEngine {
             assets: &assets,
             world,
-            player: Player::new(),
+            player,
             pixel_camera,
             world_camera,
         }
@@ -62,27 +66,23 @@ impl<'a> MailEngine<'a> {
         let scale_factor =
             (actual_screen_width / SCREEN_WIDTH).min(actual_screen_height / SCREEN_HEIGHT);
 
-        if is_key_down(KeyCode::D) {
-            self.pixel_camera.target.x += delta_time * 512.0;
-        }
-        if is_key_down(KeyCode::A) {
-            self.pixel_camera.target.x -= delta_time * 512.0;
-        }
-        if is_key_down(KeyCode::W) {
-            self.pixel_camera.target.y -= delta_time * 512.0;
-        }
-        if is_key_down(KeyCode::S) {
-            self.pixel_camera.target.y += delta_time * 512.0;
-        }
+        self.player.update(&self.world, delta_time);
+        self.pixel_camera.target = self.player.camera_pos.floor();
         set_camera(&self.pixel_camera);
-        clear_background(BLUE);
+        clear_background(Color::from_hex(0xbcbc9d));
+
+        //let world_width = ((self.world.x_max - self.world.x_min) * 8) as f32 + 16.0 * 8.0;
+        //let world_height = ((self.world.y_max - self.world.y_min) * 8) as f32 + 16.0 * 8.0;
         draw_texture_ex(
             &self.world_camera.render_target.as_ref().unwrap().texture,
-            0.0,
-            0.0,
+            //-(world_width / 2.0 - 16.0 * 8.0) / 2.0,
+            //-(world_height / 2. - 16.0 * 8.0) / 2.0,
+            (self.world.x_min - 16) as f32 * 8.0 / 2.0,
+            (self.world.y_min - 16) as f32 * 8.0 / 2.0,
             WHITE,
             DrawTextureParams::default(),
         );
+        self.player.draw(self.assets);
 
         set_default_camera();
         clear_background(BLACK);

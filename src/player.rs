@@ -18,32 +18,16 @@ fn ceil_g(a: f32) -> f32 {
 }
 
 #[derive(PartialEq)]
-pub enum Tag {
-    GameStarted,
-    StartAnimationFinished,
-    HasMail,
-    HasBirdFood,
-    HasFedBird,
-    TonyHasOpenedDoor,
-    HasGift,
-    HasGivenGift,
-    MailHasBeenSent,
-    HasBeeninGiftStore,
-    HasMilk,
-    SelectingGift,
-    HasReturnedToHenry,
-    HenryHasOfferedCarrot,
-    HasCarrot,
-}
+pub enum Tag {}
 
 pub struct Player {
     pub pos: Vec2,
     pub camera_pos: Vec2,
     pub velocity: Vec2,
-    pub anim_frame: u32,
+    pub anim_frame: f32,
     pub facing_right: bool,
     pub on_ground: bool,
-    pub jump_frames: u8,
+    pub jump_frames: f32,
     pub tags: Vec<Tag>,
     idle_animation: Animation,
     walk_animation: Animation,
@@ -54,8 +38,8 @@ impl Player {
             pos: Vec2::ZERO,
             camera_pos: Vec2::ZERO,
             velocity: Vec2::ZERO,
-            anim_frame: 0,
-            jump_frames: 0,
+            anim_frame: 0.0,
+            jump_frames: 0.0,
             facing_right: true,
             on_ground: false,
             tags: Vec::new(),
@@ -63,8 +47,8 @@ impl Player {
             walk_animation: Animation::from_file(include_bytes!("../assets/player_walk.ase")),
         }
     }
-    pub fn update(&mut self, world: &World) {
-        self.anim_frame += 1000 / 60;
+    pub fn update(&mut self, world: &World, delta_time: f32) {
+        self.anim_frame += delta_time * 1000.0;
 
         // only allow noclip on debug builds
         #[cfg(debug_assertions)]
@@ -72,49 +56,53 @@ impl Player {
         #[cfg(not(debug_assertions))]
         let noclip = { false };
 
-        let can_move = self.tags.contains(&Tag::StartAnimationFinished);
+        let can_move = true;
 
         let mut forces = Vec2::ZERO;
 
         if !noclip {
-            forces.y += GRAVITY
+            forces.y += GRAVITY * delta_time;
         }
 
         forces = forces.clamp_length_max(8.0);
 
         if can_move {
             if is_key_down(KeyCode::A) {
-                forces.x -= 1.0;
+                forces.x -= 1.0 * delta_time * 3600.0;
                 self.facing_right = false;
             }
             if is_key_down(KeyCode::D) {
-                forces.x += 1.0;
+                forces.x += 1.0 * delta_time * 3600.0;
                 self.facing_right = true;
             }
         }
 
         if self.on_ground {
-            self.jump_frames = 0;
+            self.jump_frames = 0.0;
         }
         if can_move
             && is_key_down(KeyCode::Space)
-            && (self.on_ground || (self.jump_frames > 0 && self.jump_frames < 5))
+            && (self.on_ground || (self.jump_frames > 0.0 && self.jump_frames < 0.2))
         {
-            forces.y -= if self.jump_frames == 0 { 3.5 } else { 1.0 };
-            self.jump_frames += 1;
+            forces.y -= if self.jump_frames == 0.0 {
+                3.5 * 30.0
+            } else {
+                delta_time * 360.0
+            };
+            self.jump_frames += delta_time;
         }
 
         if noclip {
             if is_key_down(KeyCode::W) {
-                forces.y -= 1.0;
+                forces.y -= 1.0 * delta_time * 30.0;
             }
             if is_key_down(KeyCode::S) {
-                forces.y += 1.0;
+                forces.y += 1.0 * delta_time * 30.0;
             }
             self.velocity += forces * 2.0;
-            self.velocity = self.velocity.lerp(Vec2::ZERO, GROUND_FRICTION);
+            self.velocity = self.velocity.lerp(Vec2::ZERO, GROUND_FRICTION * delta_time);
 
-            self.pos += self.velocity;
+            self.pos += self.velocity * delta_time;
             self.camera_pos = self.pos.floor();
             return;
         }
@@ -124,11 +112,12 @@ impl Player {
                 GROUND_FRICTION
             } else {
                 AIR_DRAG
-            };
+            }
+            * delta_time;
 
         self.velocity += forces;
 
-        let mut new = self.pos + self.velocity;
+        let mut new = self.pos + self.velocity * delta_time;
 
         let tile_x = self.pos.x / 8.0;
         let tile_y = self.pos.y / 8.0;
@@ -217,15 +206,11 @@ impl Player {
             }
         }
 
-        if self.velocity.x.abs() <= 0.3 {
+        if self.velocity.x.abs() * delta_time <= 0.3 {
             self.velocity.x = 0.0;
         }
         self.velocity.x = self.velocity.x.clamp(-MAX_VELOCITY, MAX_VELOCITY);
         self.pos = new;
-
-        if self.pos.y >= 2.0 * 8.0 && !can_move {
-            self.tags.push(Tag::StartAnimationFinished);
-        }
         self.camera_pos.x = self.pos.x.floor();
         let delta = self.camera_pos.y - self.pos.y.floor();
         let max_delta = 3.0 * 8.0;
@@ -241,7 +226,7 @@ impl Player {
             &self.idle_animation
         };
         draw_texture_ex(
-            animation.get_at_time(self.anim_frame),
+            animation.get_at_time(self.anim_frame as u32),
             self.pos.floor().x,
             self.pos.floor().y,
             WHITE,
