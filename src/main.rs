@@ -7,6 +7,7 @@ use utils::*;
 use crate::utils::create_camera;
 
 mod assets;
+mod physics;
 mod player;
 mod utils;
 
@@ -82,8 +83,13 @@ impl<'a> MailEngine<'a> {
             WHITE,
             DrawTextureParams::default(),
         );
-        for pumpkin in self.world.pumpkins.iter() {
+        for pumpkin in self.world.pumpkins.iter_mut() {
             pumpkin.draw(self.assets, &self.player.pos);
+            pumpkin.update(
+                delta_time,
+                &self.world.collision,
+                &self.world.one_way_collision,
+            );
         }
         self.player.draw(self.assets);
 

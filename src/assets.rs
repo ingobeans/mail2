@@ -3,7 +3,7 @@ use hashmap_macro::hashmap;
 use image::EncodableLayout;
 use macroquad::prelude::*;
 
-use crate::utils::*;
+use crate::{physics::update_physicsbody, utils::*};
 
 pub struct Assets {
     font: Spritesheet,
@@ -175,17 +175,37 @@ impl Animation {
 
 pub struct Pumpkin {
     pub pos: Vec2,
+    pub velocity: Vec2,
 }
 impl Pumpkin {
+    pub fn update(
+        &mut self,
+        delta_time: f32,
+        collision_tiles: &Vec<Chunk>,
+        one_way_tiles: &Vec<Chunk>,
+    ) {
+        self.velocity.y += GRAVITY * delta_time;
+        (self.pos, _) = update_physicsbody(
+            self.pos.clone(),
+            &mut self.velocity,
+            delta_time,
+            collision_tiles,
+            one_way_tiles,
+        );
+    }
     pub fn draw(&self, assets: &Assets, player_pos: &Vec2) {
         let tile_y = if self.pos.distance(*player_pos + 4.0) <= PUMPKIN_PICKUP_DIST {
             3.0
         } else {
             2.0
         };
-        assets
-            .tileset
-            .draw_sprite(self.pos.floor().x, self.pos.floor().y, 0.0, tile_y, None);
+        assets.tileset.draw_sprite(
+            self.pos.floor().x + 4.0,
+            self.pos.floor().y + 4.0,
+            0.0,
+            tile_y,
+            None,
+        );
     }
 }
 
@@ -281,7 +301,8 @@ impl Default for World {
                 let y = (index / 16) as i16 + chunk.y;
                 if *tile == 64 + 1 {
                     world.pumpkins.push(Pumpkin {
-                        pos: vec2((x * 8) as f32 + 4.0, (y * 8) as f32 + 4.0),
+                        pos: vec2((x * 8) as f32, (y * 8) as f32),
+                        velocity: Vec2::ZERO,
                     });
                 }
             }

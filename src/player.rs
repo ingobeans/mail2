@@ -1,21 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::{assets::*, utils::*};
-
-fn get_tile(chunks: &[&Chunk], x: i16, y: i16) -> i16 {
-    let cx = ((x as f32 / 16.0).floor() * 16.0) as i16;
-    let cy = ((y as f32 / 16.0).floor() * 16.0) as i16;
-    let Some(chunk) = chunks.iter().find(|f| f.x == cx && f.y == cy) else {
-        return 0;
-    };
-    let local_x = x - chunk.x;
-    let local_y = y - chunk.y;
-    chunk.tile_at(local_x as _, local_y as _).unwrap_or(0)
-}
-
-fn ceil_g(a: f32) -> f32 {
-    if a < 0.0 { a.floor() } else { a.ceil() }
-}
+use crate::{assets::*, physics::update_physicsbody, utils::*};
 
 #[derive(PartialEq)]
 pub enum Tag {}
@@ -139,95 +124,13 @@ impl Player {
             };
 
         self.velocity += forces * delta_time;
-
-        let mut new = self.pos + self.velocity * delta_time;
-
-        let tile_x = self.pos.x / 8.0;
-        let tile_y = self.pos.y / 8.0;
-
-        let tiles_y = [
-            (tile_x.trunc(), ceil_g(new.y / 8.0)),
-            (ceil_g(tile_x), ceil_g(new.y / 8.0)),
-            (tile_x.trunc(), (new.y / 8.0).trunc()),
-            (ceil_g(tile_x), (new.y / 8.0).trunc()),
-        ];
-
-        let chunks_pos: [(i16, i16); 4] = std::array::from_fn(|f| {
-            let cx = ((tiles_y[f].0 / 16.0).floor() * 16.0) as i16;
-            let cy = ((tiles_y[f].1 / 16.0).floor() * 16.0) as i16;
-            (cx, cy)
-        });
-
-        let chunks: Vec<&Chunk> = world
-            .collision
-            .iter()
-            .filter(|f| chunks_pos.contains(&(f.x, f.y)))
-            .collect();
-
-        let one_way_chunks: Vec<&Chunk> = world
-            .one_way_collision
-            .iter()
-            .filter(|f| chunks_pos.contains(&(f.x, f.y)))
-            .collect();
-
-        self.on_ground = false;
-        for (tx, ty) in tiles_y {
-            let tile = get_tile(&chunks, tx as i16, ty as i16);
-            if tile != 0 {
-                let c = if self.velocity.y < 0.0 {
-                    tile_y.floor() * 8.0
-                } else {
-                    self.on_ground = true;
-                    tile_y.ceil() * 8.0
-                };
-                new.y = c;
-                self.velocity.y = 0.0;
-                break;
-            }
-
-            // handle single way platforms
-            if self.velocity.y > 0.0
-                && ty.trunc() > tile_y.trunc()
-                && get_tile(&one_way_chunks, tx as i16, ty as i16) != 0
-            {
-                new.y = tile_y.ceil() * 8.0;
-                self.velocity.y = 0.0;
-                self.on_ground = true;
-                break;
-            }
-        }
-        let tiles_x = [
-            ((new.x / 8.0).trunc(), ceil_g(new.y / 8.0)),
-            (ceil_g(new.x / 8.0), ceil_g(new.y / 8.0)),
-            (ceil_g(new.x / 8.0), (new.y / 8.0).trunc()),
-            ((new.x / 8.0).trunc(), (new.y / 8.0).trunc()),
-        ];
-
-        let chunks_pos: [(i16, i16); 4] = std::array::from_fn(|f| {
-            let cx = ((tiles_x[f].0 / 16.0).floor() * 16.0) as i16;
-            let cy = ((tiles_x[f].1 / 16.0).floor() * 16.0) as i16;
-            (cx, cy)
-        });
-
-        let chunks: Vec<&Chunk> = world
-            .collision
-            .iter()
-            .filter(|f| chunks_pos.contains(&(f.x, f.y)))
-            .collect();
-
-        for (tx, ty) in tiles_x {
-            let tile = get_tile(&chunks, tx as i16, ty as i16);
-            if tile != 0 {
-                let c = if self.velocity.x < 0.0 {
-                    tile_x.floor() * 8.0
-                } else {
-                    tile_x.ceil() * 8.0
-                };
-                new.x = c;
-                self.velocity.x = 0.0;
-                break;
-            }
-        }
+        (self.pos, self.on_ground) = update_physicsbody(
+            self.pos.clone(),
+            &mut self.velocity,
+            delta_time,
+            &world.collision,
+            &world.one_way_collision,
+        );
 
         if self.velocity.x.abs() * delta_time <= 0.3 {
             self.velocity.x = 0.0;
@@ -236,7 +139,6 @@ impl Player {
             .velocity
             .x
             .clamp(-MAX_VELOCITY / delta_time, MAX_VELOCITY / delta_time);
-        self.pos = new;
         self.camera_pos.x = self.pos.x.floor();
         let delta = self.camera_pos.y - self.pos.y.floor();
         let max_delta = 3.0 * 8.0;
@@ -246,7 +148,7 @@ impl Player {
         }
 
         if let Some(pumpkin) = &mut self.carrying {
-            pumpkin.pos = self.pos + vec2(4.0, -3.0);
+            pumpkin.pos = self.pos + vec2(0.0, -7.0);
         }
     }
     pub fn draw(&self, assets: &Assets) {
