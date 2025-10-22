@@ -33,7 +33,6 @@ impl<'a> MailEngine<'a> {
         world_camera.target = vec2(0.0, 0.0);
         set_camera(&world_camera);
         clear_background(BLACK.with_alpha(0.0));
-        clear_background(PINK);
 
         for chunk in &world.background {
             chunk.draw(&assets);
