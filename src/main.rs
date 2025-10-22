@@ -30,12 +30,10 @@ impl<'a> MailEngine<'a> {
 
         // render world
         let mut world_camera = create_camera(world_width, world_height);
-        world_camera.target = vec2(
-            world_width / 2.0 - 16.0 * 8.0,
-            world_height / 2. - 16.0 * 8.0,
-        );
+        world_camera.target = vec2(0.0, 0.0);
         set_camera(&world_camera);
         clear_background(BLACK.with_alpha(0.0));
+        clear_background(PINK);
 
         for chunk in &world.background {
             chunk.draw(&assets);
@@ -78,8 +76,8 @@ impl<'a> MailEngine<'a> {
         // position world texture
         draw_texture_ex(
             &self.world_camera.render_target.as_ref().unwrap().texture,
-            (self.world.x_min - 16) as f32 * 8.0 / 2.0,
-            (self.world.y_min - 16) as f32 * 8.0 / 2.0,
+            (self.world.x_min) as f32 * 8.0,
+            (self.world.y_min) as f32 * 8.0,
             WHITE,
             DrawTextureParams::default(),
         );
