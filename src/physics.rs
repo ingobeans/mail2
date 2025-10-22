@@ -1,4 +1,4 @@
-use crate::assets::Chunk;
+use crate::assets::{Chunk, Pumpkin};
 use macroquad::prelude::*;
 
 fn get_tile(chunks: &[&Chunk], x: i16, y: i16) -> i16 {
@@ -109,4 +109,43 @@ pub fn update_physicsbody(
         }
     }
     (new, on_ground)
+}
+
+pub fn collide_with_pumpkins(
+    mut pos: Vec2,
+    velocity: &mut Vec2,
+    pumpkins: &Vec<Pumpkin>,
+) -> (Vec2, bool) {
+    let mut on_ground = false;
+    for pumpkin in pumpkins {
+        let center_pos = pos + 4.0;
+        let inside = (pumpkin.pos.x - 4.0..pumpkin.pos.x + 8.0 + 4.0).contains(&center_pos.x)
+            && (pumpkin.pos.y - 4.0..pumpkin.pos.y + 8.0 + 4.0).contains(&center_pos.y);
+        if inside {
+            let delta_x = pos.x - pumpkin.pos.x;
+            let delta_y = center_pos.y - pumpkin.pos.y;
+
+            if delta_y < 0.0 {
+                pos.y = pumpkin.pos.y - 4.0 - 4.0;
+                if velocity.y > 0.0 {
+                    velocity.y = 0.0;
+                    on_ground = true;
+                }
+            } else if delta_x.abs() > delta_y.abs() {
+                if delta_x < 0.0 {
+                    pos.x = pumpkin.pos.x - 4.0 - 4.0;
+                    if velocity.x > 0.0 {
+                        velocity.x = 0.0;
+                    }
+                } else {
+                    pos.x = pumpkin.pos.x + 7.0 + 4.0 - 4.0;
+                    if velocity.x < 0.0 {
+                        velocity.x = 0.0;
+                    }
+                }
+            }
+            break;
+        }
+    }
+    (pos, on_ground)
 }

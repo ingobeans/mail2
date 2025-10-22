@@ -1,6 +1,10 @@
 use macroquad::prelude::*;
 
-use crate::{assets::*, physics::update_physicsbody, utils::*};
+use crate::{
+    assets::*,
+    physics::{collide_with_pumpkins, update_physicsbody},
+    utils::*,
+};
 
 #[derive(PartialEq)]
 pub enum Tag {}
@@ -126,6 +130,9 @@ impl Player {
             };
 
         self.velocity += forces * delta_time;
+        let on_pumpkin;
+        (self.pos, on_pumpkin) =
+            collide_with_pumpkins(self.pos.clone(), &mut self.velocity, &world.pumpkins);
         (self.pos, self.on_ground) = update_physicsbody(
             self.pos.clone(),
             &mut self.velocity,
@@ -133,6 +140,7 @@ impl Player {
             &world.collision,
             &world.one_way_collision,
         );
+        self.on_ground |= on_pumpkin;
 
         if self.velocity.x.abs() * delta_time <= 0.3 {
             self.velocity.x = 0.0;
