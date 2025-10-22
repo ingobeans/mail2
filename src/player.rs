@@ -61,18 +61,16 @@ impl Player {
         let mut forces = Vec2::ZERO;
 
         if !noclip {
-            forces.y += GRAVITY * delta_time;
+            forces.y += GRAVITY;
         }
-
-        forces = forces.clamp_length_max(8.0);
 
         if can_move {
             if is_key_down(KeyCode::A) {
-                forces.x -= 1.0 * delta_time * 3600.0;
+                forces.x -= 1.0 * 3600.0;
                 self.facing_right = false;
             }
             if is_key_down(KeyCode::D) {
-                forces.x += 1.0 * delta_time * 3600.0;
+                forces.x += 1.0 * 3600.0;
                 self.facing_right = true;
             }
         }
@@ -84,22 +82,23 @@ impl Player {
             && is_key_down(KeyCode::Space)
             && (self.on_ground || (self.jump_frames > 0.0 && self.jump_frames < 0.2))
         {
-            forces.y -= if self.jump_frames == 0.0 {
-                3.5 * 30.0
+            if self.jump_frames == 0.0 {
+                self.velocity.y -= 2.5 * 60.0;
             } else {
-                delta_time * 360.0
-            };
+                forces.y -= delta_time * 3600.0 * 12.0
+            }
             self.jump_frames += delta_time;
         }
 
         if noclip {
             if is_key_down(KeyCode::W) {
-                forces.y -= 1.0 * delta_time * 30.0;
+                forces.y -= 1.0 * 3600.0;
             }
             if is_key_down(KeyCode::S) {
-                forces.y += 1.0 * delta_time * 30.0;
+                forces.y += 1.0 * 3600.0;
             }
-            self.velocity += forces * 2.0;
+            self.velocity += forces * 1.0 * delta_time;
+
             self.velocity = self.velocity.lerp(Vec2::ZERO, GROUND_FRICTION * delta_time);
 
             self.pos += self.velocity * delta_time;
@@ -112,10 +111,9 @@ impl Player {
                 GROUND_FRICTION
             } else {
                 AIR_DRAG
-            }
-            * delta_time;
+            };
 
-        self.velocity += forces;
+        self.velocity += forces * delta_time;
 
         let mut new = self.pos + self.velocity * delta_time;
 
