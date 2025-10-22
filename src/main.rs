@@ -15,6 +15,9 @@ struct MailEngine<'a> {
     player: Player,
     world: World,
     pixel_camera: Camera2D,
+    /// Camera used to render the world.
+    ///
+    /// World is only rendered once. It is rendered to a texture that can then be drawn every frame.
     world_camera: Camera2D,
 }
 
@@ -25,6 +28,7 @@ impl<'a> MailEngine<'a> {
         let world_width = ((world.x_max - world.x_min) * 8) as f32 + 16.0 * 8.0;
         let world_height = ((world.y_max - world.y_min) * 8) as f32 + 16.0 * 8.0;
 
+        // render world
         let mut world_camera = create_camera(world_width, world_height);
         world_camera.target = vec2(
             world_width / 2.0 - 16.0 * 8.0,
@@ -61,7 +65,8 @@ impl<'a> MailEngine<'a> {
         }
     }
     fn update(&mut self) {
-        let delta_time = get_frame_time();
+        // cap delta time to a minimum of 60 fps.
+        let delta_time = get_frame_time().min(1.0 / 60.0);
         let (actual_screen_width, actual_screen_height) = screen_size();
         let scale_factor =
             (actual_screen_width / SCREEN_WIDTH).min(actual_screen_height / SCREEN_HEIGHT);
@@ -71,12 +76,9 @@ impl<'a> MailEngine<'a> {
         set_camera(&self.pixel_camera);
         clear_background(Color::from_hex(0xbcbc9d));
 
-        //let world_width = ((self.world.x_max - self.world.x_min) * 8) as f32 + 16.0 * 8.0;
-        //let world_height = ((self.world.y_max - self.world.y_min) * 8) as f32 + 16.0 * 8.0;
+        // position world texture
         draw_texture_ex(
             &self.world_camera.render_target.as_ref().unwrap().texture,
-            //-(world_width / 2.0 - 16.0 * 8.0) / 2.0,
-            //-(world_height / 2. - 16.0 * 8.0) / 2.0,
             (self.world.x_min - 16) as f32 * 8.0 / 2.0,
             (self.world.y_min - 16) as f32 * 8.0 / 2.0,
             WHITE,
