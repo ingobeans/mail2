@@ -176,6 +176,7 @@ impl Animation {
 pub struct Pumpkin {
     pub pos: Vec2,
     pub velocity: Vec2,
+    pub on_ground: bool,
 }
 impl Pumpkin {
     pub fn update(
@@ -185,7 +186,9 @@ impl Pumpkin {
         one_way_tiles: &Vec<Chunk>,
     ) {
         self.velocity.y += GRAVITY * delta_time;
-        (self.pos, _) = update_physicsbody(
+        self.velocity.x -=
+            self.velocity.x * if self.on_ground { GROUND_FRICTION } else { 0.0 } * delta_time;
+        (self.pos, self.on_ground) = update_physicsbody(
             self.pos.clone(),
             &mut self.velocity,
             delta_time,
@@ -303,6 +306,7 @@ impl Default for World {
                     world.pumpkins.push(Pumpkin {
                         pos: vec2((x * 8) as f32, (y * 8) as f32),
                         velocity: Vec2::ZERO,
+                        on_ground: true,
                     });
                 }
             }

@@ -69,7 +69,9 @@ impl Player {
                 self.carrying = Some(pumpkin);
             }
         } else if interacted {
-            let pumpkin = self.carrying.take().unwrap();
+            let mut pumpkin = self.carrying.take().unwrap();
+            let dir = get_input_axis();
+            pumpkin.velocity = dir * 3.0 * 60.0;
             world.pumpkins.push(pumpkin);
         }
 
