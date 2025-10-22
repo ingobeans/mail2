@@ -15,6 +15,7 @@ struct MailEngine<'a> {
     player: Player,
     world: World,
     pixel_camera: Camera2D,
+    frame: u32,
     /// Camera used to render the world.
     ///
     /// World is only rendered once. It is rendered to a texture that can then be drawn every frame.
@@ -53,6 +54,7 @@ impl<'a> MailEngine<'a> {
 
         let pixel_camera = create_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
         MailEngine {
+            frame: 0,
             assets: &assets,
             world,
             player,
@@ -61,12 +63,12 @@ impl<'a> MailEngine<'a> {
         }
     }
     fn update(&mut self) {
+        self.frame += 1;
         // cap delta time to a minimum of 60 fps.
         let delta_time = get_frame_time().min(1.0 / 60.0);
         let (actual_screen_width, actual_screen_height) = screen_size();
         let scale_factor =
             (actual_screen_width / SCREEN_WIDTH).min(actual_screen_height / SCREEN_HEIGHT);
-
         self.player.update(&mut self.world, delta_time);
         self.pixel_camera.target = self.player.camera_pos.floor();
         set_camera(&self.pixel_camera);

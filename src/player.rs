@@ -104,12 +104,13 @@ impl Player {
         }
         if can_move
             && is_key_down(KeyCode::Space)
-            && (self.on_ground || (self.jump_frames > 0.0 && self.jump_frames < 0.2))
+            && (self.on_ground || (self.jump_frames > 0.0 && self.jump_frames < 0.5))
         {
             if self.jump_frames == 0.0 {
-                self.velocity.y -= 2.5 * 60.0;
+                self.velocity.y -= 3.0 * 60.0;
             } else {
-                forces.y -= delta_time * 3600.0 * 12.0
+                //self.velocity.y -= 60.0 * 10.0 * delta_time;
+                //forces.y -= 60.0 * 10.0;
             }
             self.jump_frames += delta_time;
         }
@@ -231,7 +232,10 @@ impl Player {
         if self.velocity.x.abs() * delta_time <= 0.3 {
             self.velocity.x = 0.0;
         }
-        self.velocity.x = self.velocity.x.clamp(-MAX_VELOCITY, MAX_VELOCITY);
+        self.velocity.x = self
+            .velocity
+            .x
+            .clamp(-MAX_VELOCITY / delta_time, MAX_VELOCITY / delta_time);
         self.pos = new;
         self.camera_pos.x = self.pos.x.floor();
         let delta = self.camera_pos.y - self.pos.y.floor();
