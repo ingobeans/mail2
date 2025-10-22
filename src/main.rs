@@ -73,7 +73,7 @@ impl<'a> MailEngine<'a> {
         self.player.update(&self.world, delta_time);
         self.pixel_camera.target = self.player.camera_pos.floor();
         set_camera(&self.pixel_camera);
-        clear_background(Color::from_hex(0xbcbc9d));
+        clear_background(Color::from_hex(0x567c7d));
 
         // position world texture
         draw_texture_ex(
