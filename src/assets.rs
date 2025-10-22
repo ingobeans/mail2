@@ -173,12 +173,30 @@ impl Animation {
     }
 }
 
+pub struct Pumpkin {
+    pub pos: Vec2,
+}
+impl Pumpkin {
+    pub fn draw(&self, assets: &Assets, player_pos: &Vec2) {
+        let tile_y = if self.pos.distance(*player_pos + 4.0) <= PUMPKIN_PICKUP_DIST {
+            3.0
+        } else {
+            2.0
+        };
+        assets
+            .tileset
+            .draw_sprite(self.pos.floor().x, self.pos.floor().y, 0.0, tile_y, None);
+    }
+}
+
 pub struct World {
     pub collision: Vec<Chunk>,
     pub one_way_collision: Vec<Chunk>,
     pub details: Vec<Chunk>,
     pub background: Vec<Chunk>,
     pub interactable: Vec<Chunk>,
+
+    pub pumpkins: Vec<Pumpkin>,
 
     pub x_min: i16,
     pub x_max: i16,
@@ -229,7 +247,10 @@ impl Default for World {
             y_min: 999,
             y_max: -999,
             x_max: -999,
+            pumpkins: Vec::new(),
         };
+
+        // define x y min and max
         for layer in [
             &world.collision,
             &world.one_way_collision,
@@ -249,6 +270,19 @@ impl Default for World {
                 }
                 if chunk.y > world.y_max {
                     world.y_max = chunk.y;
+                }
+            }
+        }
+
+        // populate pumpkins array
+        for chunk in &world.interactable {
+            for (index, tile) in chunk.tiles.iter().enumerate() {
+                let x = (index % 16) as i16 + chunk.x;
+                let y = (index / 16) as i16 + chunk.y;
+                if *tile == 64 + 1 {
+                    world.pumpkins.push(Pumpkin {
+                        pos: vec2((x * 8) as f32 + 4.0, (y * 8) as f32 + 4.0),
+                    });
                 }
             }
         }

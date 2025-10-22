@@ -67,7 +67,7 @@ impl<'a> MailEngine<'a> {
         let scale_factor =
             (actual_screen_width / SCREEN_WIDTH).min(actual_screen_height / SCREEN_HEIGHT);
 
-        self.player.update(&self.world, delta_time);
+        self.player.update(&mut self.world, delta_time);
         self.pixel_camera.target = self.player.camera_pos.floor();
         set_camera(&self.pixel_camera);
         clear_background(Color::from_hex(0x567c7d));
@@ -80,6 +80,9 @@ impl<'a> MailEngine<'a> {
             WHITE,
             DrawTextureParams::default(),
         );
+        for pumpkin in self.world.pumpkins.iter() {
+            pumpkin.draw(self.assets, &self.player.pos);
+        }
         self.player.draw(self.assets);
 
         set_default_camera();
