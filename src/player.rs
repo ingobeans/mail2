@@ -63,7 +63,7 @@ impl Player {
             let nearby_pumpkin = world
                 .pumpkins
                 .iter()
-                .position(|f| f.pos.distance(self.pos + 4.0) <= PUMPKIN_PICKUP_DIST);
+                .position(|f| f.pos.distance(self.pos) <= PUMPKIN_PICKUP_DIST);
             if let Some(pumpkin) = nearby_pumpkin {
                 let pumpkin = world.pumpkins.remove(pumpkin);
                 self.carrying = Some(pumpkin);

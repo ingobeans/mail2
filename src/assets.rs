@@ -197,7 +197,7 @@ impl Pumpkin {
         );
     }
     pub fn draw(&self, assets: &Assets, player_pos: &Vec2) {
-        let tile_y = if self.pos.distance(*player_pos + 4.0) <= PUMPKIN_PICKUP_DIST {
+        let tile_y = if self.pos.distance(*player_pos) <= PUMPKIN_PICKUP_DIST {
             3.0
         } else {
             2.0
