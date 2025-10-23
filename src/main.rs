@@ -1,4 +1,7 @@
-use macroquad::{miniquad::window::screen_size, prelude::*};
+use macroquad::{
+    miniquad::window::{screen_size, set_window_size},
+    prelude::*,
+};
 
 use assets::*;
 use player::*;
@@ -111,7 +114,15 @@ impl<'a> MailEngine<'a> {
     }
 }
 
-#[macroquad::main("mail2")]
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "mail2".to_string(),
+        window_width: SCREEN_WIDTH as i32 * 3,
+        window_height: SCREEN_HEIGHT as i32 * 3,
+        ..Default::default()
+    }
+}
+#[macroquad::main(window_conf)]
 async fn main() {
     let assets = Assets::default();
     let mut mail_engine = MailEngine::new(&assets);
