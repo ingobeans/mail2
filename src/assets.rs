@@ -188,6 +188,11 @@ impl Pumpkin {
         self.velocity.y += GRAVITY * delta_time;
         self.velocity.x -=
             self.velocity.x * if self.on_ground { GROUND_FRICTION } else { 0.0 } * delta_time;
+
+        if self.velocity.x.abs() * delta_time <= 0.3 {
+            self.velocity.x = 0.0;
+            self.pos = self.pos.round();
+        }
         (self.pos, self.on_ground) = update_physicsbody(
             self.pos.clone(),
             &mut self.velocity,
