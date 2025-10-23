@@ -61,6 +61,17 @@ impl Player {
             forces.y += GRAVITY;
         }
 
+        if can_move {
+            if is_key_down(KeyCode::A) {
+                forces.x -= 1.0 * 3600.0;
+                self.facing_right = false;
+            }
+            if is_key_down(KeyCode::D) {
+                forces.x += 1.0 * 3600.0;
+                self.facing_right = true;
+            }
+        }
+
         let interacted = is_key_pressed(KeyCode::E) || is_mouse_button_pressed(MouseButton::Left);
 
         if interacted && self.carrying.is_none() {
@@ -74,20 +85,15 @@ impl Player {
             }
         } else if interacted {
             let mut pumpkin = self.carrying.take().unwrap();
-            let dir = get_input_axis();
+            let input_dir = get_input_axis();
+            let mut dir = Vec2::ZERO;
+            if input_dir.y < 0.0 {
+                dir = input_dir;
+            } else if input_dir.y == 0.0 {
+                dir = vec2(if self.facing_right { 1.0 } else { -1.0 }, 0.0);
+            }
             pumpkin.velocity = dir * 3.0 * 60.0;
             world.pumpkins.push(pumpkin);
-        }
-
-        if can_move {
-            if is_key_down(KeyCode::A) {
-                forces.x -= 1.0 * 3600.0;
-                self.facing_right = false;
-            }
-            if is_key_down(KeyCode::D) {
-                forces.x += 1.0 * 3600.0;
-                self.facing_right = true;
-            }
         }
 
         if self.on_ground {
