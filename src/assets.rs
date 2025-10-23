@@ -189,7 +189,7 @@ impl Pumpkin {
         self.velocity.x -=
             self.velocity.x * if self.on_ground { GROUND_FRICTION } else { 0.0 } * delta_time;
 
-        if self.velocity.x.abs() * delta_time <= 0.3 {
+        if self.velocity.x.abs() <= 2.0 {
             self.velocity.x = 0.0;
             self.pos = self.pos.round();
         }

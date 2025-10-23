@@ -59,6 +59,7 @@ impl Player {
 
         if !noclip {
             forces.y += GRAVITY;
+            //forces.x += GRAVITY;
         }
 
         if can_move {
@@ -128,15 +129,17 @@ impl Player {
             return;
         }
 
-        forces.x -= self.velocity.x
+        self.velocity += forces * delta_time;
+        let on_pumpkin;
+        self.velocity.x = self.velocity.x.clamp(-MAX_VELOCITY, MAX_VELOCITY);
+        self.velocity.x -= self.velocity.x
+            * delta_time
             * if self.on_ground {
                 GROUND_FRICTION
             } else {
                 AIR_DRAG
             };
 
-        self.velocity += forces * delta_time;
-        let on_pumpkin;
         (self.pos, on_pumpkin) =
             collide_with_pumpkins(self.pos.clone(), &mut self.velocity, &world.pumpkins);
         (self.pos, self.on_ground) = update_physicsbody(
@@ -148,13 +151,9 @@ impl Player {
         );
         self.on_ground |= on_pumpkin;
 
-        if self.velocity.x.abs() * delta_time <= 0.3 {
+        if self.velocity.x.abs() <= 2.0 && forces.x == 0.0 {
             self.velocity.x = 0.0;
         }
-        self.velocity.x = self
-            .velocity
-            .x
-            .clamp(-MAX_VELOCITY / delta_time, MAX_VELOCITY / delta_time);
         self.camera_pos.x = self.pos.x.floor();
         let delta = self.camera_pos.y - self.pos.y.floor();
         let max_delta = 3.0 * 8.0;

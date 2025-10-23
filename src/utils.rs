@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 pub const SCREEN_WIDTH: f32 = 256.0;
 pub const SCREEN_HEIGHT: f32 = 144.0;
 
-pub const MAX_VELOCITY: f32 = 0.5;
+pub const MAX_VELOCITY: f32 = 90.0;
 pub const GROUND_FRICTION: f32 = 0.21 * 60.0;
 pub const AIR_DRAG: f32 = 0.07 * 60.0;
 pub const GRAVITY: f32 = 0.25 * 3600.0;

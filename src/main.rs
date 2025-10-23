@@ -111,6 +111,7 @@ impl<'a> MailEngine<'a> {
                 ..Default::default()
             },
         );
+        //draw_text(&get_fps().to_string(), 48.0, 48.0, 32.0, WHITE);
     }
 }
 
@@ -119,6 +120,10 @@ fn window_conf() -> Conf {
         window_title: "mail2".to_string(),
         window_width: SCREEN_WIDTH as i32 * 3,
         window_height: SCREEN_HEIGHT as i32 * 3,
+        //platform: macroquad::miniquad::conf::Platform {
+        //    swap_interval: Some(0),
+        //    ..Default::default()
+        //},
         ..Default::default()
     }
 }
