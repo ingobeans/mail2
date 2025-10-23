@@ -1,7 +1,4 @@
-use macroquad::{
-    miniquad::window::{screen_size, set_window_size},
-    prelude::*,
-};
+use macroquad::{miniquad::window::screen_size, prelude::*};
 
 use assets::*;
 use player::*;
@@ -40,16 +37,16 @@ impl<'a> MailEngine<'a> {
         clear_background(BLACK.with_alpha(0.0));
 
         for chunk in &world.background {
-            chunk.draw(&assets);
+            chunk.draw(assets);
         }
         for chunk in &world.collision {
-            chunk.draw(&assets);
+            chunk.draw(assets);
         }
         for chunk in &world.details {
-            chunk.draw(&assets);
+            chunk.draw(assets);
         }
         for chunk in &world.one_way_collision {
-            chunk.draw(&assets);
+            chunk.draw(assets);
         }
 
         let mut player = Player::new();
@@ -59,7 +56,7 @@ impl<'a> MailEngine<'a> {
         let pixel_camera = create_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
         MailEngine {
             frame: 0,
-            assets: &assets,
+            assets,
             world,
             player,
             pixel_camera,
@@ -111,7 +108,7 @@ impl<'a> MailEngine<'a> {
                 ..Default::default()
             },
         );
-        //draw_text(&get_fps().to_string(), 48.0, 48.0, 32.0, WHITE);
+        draw_text(&get_fps().to_string(), 48.0, 48.0, 32.0, WHITE);
     }
 }
 

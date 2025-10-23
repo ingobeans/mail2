@@ -24,6 +24,7 @@ impl Default for Assets {
     }
 }
 impl Assets {
+    #[expect(dead_code)]
     pub fn draw_text(&self, text: &str, mut x: f32, mut y: f32) -> (f32, f32) {
         let original_x = x;
         let original_y = y;
@@ -179,12 +180,7 @@ pub struct Pumpkin {
     pub on_ground: bool,
 }
 impl Pumpkin {
-    pub fn update(
-        &mut self,
-        delta_time: f32,
-        collision_tiles: &Vec<Chunk>,
-        one_way_tiles: &Vec<Chunk>,
-    ) {
+    pub fn update(&mut self, delta_time: f32, collision_tiles: &[Chunk], one_way_tiles: &[Chunk]) {
         self.velocity.y += GRAVITY * delta_time;
         self.velocity.x -=
             self.velocity.x * if self.on_ground { GROUND_FRICTION } else { 0.0 } * delta_time;
@@ -194,7 +190,7 @@ impl Pumpkin {
             self.pos = self.pos.round();
         }
         (self.pos, self.on_ground) = update_physicsbody(
-            self.pos.clone(),
+            self.pos,
             &mut self.velocity,
             delta_time,
             collision_tiles,
@@ -231,6 +227,7 @@ pub struct World {
     pub y_min: i16,
     pub y_max: i16,
 }
+#[expect(dead_code)]
 impl World {
     pub fn get_interactable_spawn(&self, tile_index: i16) -> Option<Vec2> {
         for chunk in self.interactable.iter() {

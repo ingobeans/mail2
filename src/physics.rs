@@ -20,8 +20,8 @@ pub fn update_physicsbody(
     pos: Vec2,
     velocity: &mut Vec2,
     delta_time: f32,
-    collision_tiles: &Vec<Chunk>,
-    one_way_tiles: &Vec<Chunk>,
+    collision_tiles: &[Chunk],
+    one_way_tiles: &[Chunk],
 ) -> (Vec2, bool) {
     let mut new = pos + *velocity * delta_time;
 

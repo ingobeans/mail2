@@ -17,6 +17,7 @@ pub struct Player {
     pub facing_right: bool,
     pub on_ground: bool,
     pub jump_frames: f32,
+    #[expect(dead_code)]
     pub tags: Vec<Tag>,
 
     pub carrying: Option<Pumpkin>,
@@ -141,9 +142,9 @@ impl Player {
             };
 
         (self.pos, on_pumpkin) =
-            collide_with_pumpkins(self.pos.clone(), &mut self.velocity, &world.pumpkins);
+            collide_with_pumpkins(self.pos, &mut self.velocity, &world.pumpkins);
         (self.pos, self.on_ground) = update_physicsbody(
-            self.pos.clone(),
+            self.pos,
             &mut self.velocity,
             delta_time,
             &world.collision,
