@@ -287,16 +287,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "64b1d96218903768c1ce078b657c0d5965465c95a60d2682fd97443c9d2483dd"
 
 [[package]]
-name = "mail2"
-version = "0.1.15"
-dependencies = [
- "asefile",
- "hashmap_macro",
- "image",
- "macroquad",
-]
-
-[[package]]
 name = "malloc_buf"
 version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -368,6 +358,16 @@ dependencies = [
  "fdeflate",
  "flate2",
  "miniz_oxide",
+]
+
+[[package]]
+name = "pumpkin"
+version = "0.1.15"
+dependencies = [
+ "asefile",
+ "hashmap_macro",
+ "image",
+ "macroquad",
 ]
 
 [[package]]
