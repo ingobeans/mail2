@@ -108,7 +108,7 @@ impl<'a> MailEngine<'a> {
                 ..Default::default()
             },
         );
-        draw_text(&get_fps().to_string(), 48.0, 48.0, 32.0, WHITE);
+        //draw_text(&get_fps().to_string(), 48.0, 48.0, 32.0, WHITE);
     }
 }
 
