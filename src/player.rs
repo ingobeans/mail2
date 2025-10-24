@@ -60,7 +60,6 @@ impl Player {
 
         if !noclip {
             forces.y += GRAVITY;
-            //forces.x += GRAVITY;
         }
 
         if can_move {
@@ -71,6 +70,11 @@ impl Player {
             if is_key_down(KeyCode::D) {
                 forces.x += 1.0 * 3600.0;
                 self.facing_right = true;
+            }
+        }
+        if !self.on_ground {
+            if forces.x * self.velocity.x > 0.0 {
+                forces.x *= 0.02;
             }
         }
 
@@ -136,7 +140,11 @@ impl Player {
         self.velocity.x -= self.velocity.x
             * delta_time
             * if self.on_ground {
-                GROUND_FRICTION
+                if forces.x == 0.0 {
+                    GROUND_FRICTION * 3.0
+                }else {
+                    GROUND_FRICTION
+                }
             } else {
                 AIR_DRAG
             };
