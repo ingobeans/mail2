@@ -72,7 +72,7 @@ impl Player {
                 self.facing_right = true;
             }
         }
-        if !self.on_ground {
+        if !noclip && !self.on_ground {
             if forces.x * self.velocity.x > 0.0 {
                 forces.x *= 0.02;
             }
@@ -93,10 +93,12 @@ impl Player {
             let mut pumpkin = self.carrying.take().unwrap();
             let input_dir = get_input_axis();
             let mut dir = Vec2::ZERO;
-            if input_dir.y < 0.0 {
+            if input_dir.y < 0.0 && input_dir.x != 0.0 {
                 dir = input_dir;
             } else if input_dir.y == 0.0 {
-                dir = vec2(if self.facing_right { 1.0 } else { -1.0 }, 0.0);
+                dir.x = if self.facing_right { 1.0 } else { -1.0 };
+            } else if input_dir.y > 0.0 && input_dir.x != 0.0 {
+                dir.x = input_dir.x;
             }
             pumpkin.velocity = dir * 3.0 * 60.0;
             world.pumpkins.push(pumpkin);
@@ -142,7 +144,7 @@ impl Player {
             * if self.on_ground {
                 if forces.x == 0.0 {
                     GROUND_FRICTION * 3.0
-                }else {
+                } else {
                     GROUND_FRICTION
                 }
             } else {
