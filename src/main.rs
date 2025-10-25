@@ -21,6 +21,7 @@ struct PumpkinEngine<'a> {
     ///
     /// World is only rendered once. It is rendered to a texture that can then be drawn every frame.
     world_camera: Camera2D,
+    poi_location: Vec2,
 }
 
 impl<'a> PumpkinEngine<'a> {
@@ -58,6 +59,7 @@ impl<'a> PumpkinEngine<'a> {
 
         let pixel_camera = create_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
         PumpkinEngine {
+            poi_location: world.get_interactable_spawn(160).unwrap(),
             frame: 0,
             assets,
             world,
@@ -68,6 +70,7 @@ impl<'a> PumpkinEngine<'a> {
     }
     fn update(&mut self) {
         self.frame += 1;
+
         // cap delta time to a minimum of 60 fps.
         let delta_time = get_frame_time().min(1.0 / 60.0);
         let (actual_screen_width, actual_screen_height) = screen_size();
@@ -95,6 +98,34 @@ impl<'a> PumpkinEngine<'a> {
             );
         }
         self.player.draw(self.assets);
+        draw_texture(
+            self.assets.poi.get_at_time((get_time() * 1000.0) as u32),
+            self.poi_location.x,
+            self.poi_location.y - 3.0 * 8.0,
+            WHITE,
+        );
+        if self.player.pos.distance(self.poi_location) <= 16.0 {
+            let text = "bring me a pumpkin\nand i will bake you a pie!";
+            draw_rectangle(
+                self.poi_location.x - 6.0 * 8.0,
+                self.poi_location.y - 3.0 * 8.0 + 2.0,
+                ({
+                    let mut s = text.lines().collect::<Vec<&str>>();
+                    s.sort_by(|a, b| b.len().cmp(&a.len()));
+                    s
+                }[0]
+                .len()
+                    + 2) as f32
+                    * 4.0,
+                (text.lines().count() + 2) as f32 * 5.0,
+                WHITE,
+            );
+            self.assets.draw_text(
+                text,
+                self.poi_location.x + 4.0 - 6.0 * 8.0,
+                self.poi_location.y + 5.0 - 3.0 * 8.0 + 2.0,
+            );
+        }
 
         set_default_camera();
         clear_background(BLACK);

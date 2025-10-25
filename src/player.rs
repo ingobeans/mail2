@@ -6,9 +6,6 @@ use crate::{
     utils::*,
 };
 
-#[derive(PartialEq)]
-pub enum Tag {}
-
 pub struct Player {
     pub pos: Vec2,
     pub camera_pos: Vec2,
@@ -17,8 +14,6 @@ pub struct Player {
     pub facing_right: bool,
     pub on_ground: bool,
     pub jump_frames: f32,
-    #[expect(dead_code)]
-    pub tags: Vec<Tag>,
 
     pub carrying: Option<Pumpkin>,
 
@@ -38,7 +33,6 @@ impl Player {
             jump_frames: 0.0,
             facing_right: true,
             on_ground: false,
-            tags: Vec::new(),
             body_animation: Animation::from_file(include_bytes!("../assets/player_body.ase")),
             carry_animation: Animation::from_file(include_bytes!("../assets/player_carry.ase")),
             walk_animation: Animation::from_file(include_bytes!("../assets/player_walk.ase")),
@@ -129,7 +123,7 @@ impl Player {
             if is_key_down(KeyCode::S) {
                 forces.y += 1.0 * 3600.0;
             }
-            self.velocity += forces * 1.0 * delta_time;
+            self.velocity += forces * 3.0 * delta_time;
 
             self.velocity = self.velocity.lerp(Vec2::ZERO, GROUND_FRICTION * delta_time);
 

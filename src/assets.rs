@@ -8,6 +8,7 @@ use crate::{physics::update_physicsbody, utils::*};
 pub struct Assets {
     font: Spritesheet,
     tileset: Spritesheet,
+    pub poi: Animation,
 }
 impl Default for Assets {
     fn default() -> Self {
@@ -20,11 +21,11 @@ impl Default for Assets {
                 load_ase_texture(include_bytes!("../assets/tileset.ase"), None),
                 8.0,
             ),
+            poi: Animation::from_file(include_bytes!("../assets/poi.ase")),
         }
     }
 }
 impl Assets {
-    #[expect(dead_code)]
     pub fn draw_text(&self, text: &str, mut x: f32, mut y: f32) -> (f32, f32) {
         let original_x = x;
         let original_y = y;
