@@ -32,7 +32,7 @@ impl<'a> PumpkinEngine<'a> {
 
         // render world
         let mut world_camera = create_camera(world_width, world_height);
-        world_camera.target = vec2(0.0, 0.0);
+        world_camera.target = vec2((world.x_min+world.x_max+16)as f32/2.0 * 8.0,(world.y_min+world.y_max+16)as f32/2.0 * 8.0);
         set_camera(&world_camera);
         clear_background(BLACK.with_alpha(0.0));
 
