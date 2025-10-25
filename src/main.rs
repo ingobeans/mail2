@@ -11,7 +11,7 @@ mod physics;
 mod player;
 mod utils;
 
-struct MailEngine<'a> {
+struct PumpkinEngine<'a> {
     assets: &'a Assets,
     player: Player,
     world: World,
@@ -23,7 +23,7 @@ struct MailEngine<'a> {
     world_camera: Camera2D,
 }
 
-impl<'a> MailEngine<'a> {
+impl<'a> PumpkinEngine<'a> {
     fn new(assets: &'a Assets) -> Self {
         let world = World::default();
 
@@ -54,7 +54,7 @@ impl<'a> MailEngine<'a> {
         player.camera_pos = vec2(0.0, -100.0);
 
         let pixel_camera = create_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
-        MailEngine {
+        PumpkinEngine {
             frame: 0,
             assets,
             world,
@@ -127,7 +127,7 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let assets = Assets::default();
-    let mut mail_engine = MailEngine::new(&assets);
+    let mut mail_engine = PumpkinEngine::new(&assets);
 
     loop {
         mail_engine.update();
