@@ -81,13 +81,15 @@ impl Player {
         let interacted = is_key_pressed(KeyCode::E) || is_mouse_button_pressed(MouseButton::Left);
 
         if interacted && self.carrying.is_none() {
-            let nearby_pumpkin = world
-                .pumpkins
-                .iter()
-                .position(|f| f.pos.distance(self.pos) <= PUMPKIN_PICKUP_DIST);
-            if let Some(pumpkin) = nearby_pumpkin {
-                let pumpkin = world.pumpkins.remove(pumpkin);
-                self.carrying = Some(pumpkin);
+            if self.velocity.y == 0.0 {
+                let nearby_pumpkin = world
+                    .pumpkins
+                    .iter()
+                    .position(|f| f.within_reach(&self.pos, self.on_ground));
+                if let Some(pumpkin) = nearby_pumpkin {
+                    let pumpkin = world.pumpkins.remove(pumpkin);
+                    self.carrying = Some(pumpkin);
+                }
             }
         } else if interacted {
             let mut pumpkin = self.carrying.take().unwrap();
@@ -209,7 +211,7 @@ impl Player {
             },
         );
         if let Some(pumpkin) = &self.carrying {
-            pumpkin.draw(assets, &vec2(-999.0, -999.0));
+            pumpkin.draw(assets, &vec2(0.0, 0.0), false);
         }
     }
 }

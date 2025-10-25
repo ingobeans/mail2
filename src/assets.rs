@@ -197,8 +197,16 @@ impl Pumpkin {
             one_way_tiles,
         );
     }
-    pub fn draw(&self, assets: &Assets, player_pos: &Vec2) {
-        let tile_y = if self.pos.distance(*player_pos) <= PUMPKIN_PICKUP_DIST {
+    pub fn within_reach(&self, player_pos: &Vec2, player_grounded: bool) -> bool {
+        if !player_grounded {
+            return false;
+        }
+        let weighted_dist =
+            (self.pos.x - player_pos.x).powi(2) + (self.pos.y - player_pos.y).powi(2) * 1.5;
+        weighted_dist <= PUMPKIN_PICKUP_DIST.powi(2)
+    }
+    pub fn draw(&self, assets: &Assets, player_pos: &Vec2, player_grounded: bool) {
+        let tile_y = if self.within_reach(player_pos, player_grounded) {
             3.0
         } else {
             2.0
