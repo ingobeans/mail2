@@ -111,11 +111,6 @@ impl<'a> PumpkinEngine<'a> {
                 WHITE,
             );
             *pumpkin_guy_animation += delta_time;
-            if *pumpkin_guy_animation * 1000.0
-                > self.assets.pumpkin_guy_animation.total_length as f32
-            {
-                panic!("wa");
-            }
         }
         for pumpkin in self.world.pumpkins.iter_mut() {
             pumpkin.draw(self.assets, &self.player.pos, self.player.on_ground);
@@ -173,6 +168,25 @@ impl<'a> PumpkinEngine<'a> {
                 ..Default::default()
             },
         );
+        if let Some(pumpkin_guy_animation) = &mut self.pumpkin_guy_animation {
+            if *pumpkin_guy_animation * 1000.0
+                > self.assets.pumpkin_guy_animation.total_length as f32
+            {
+                draw_texture_ex(
+                    &self.assets.win_screen,
+                    0.0,
+                    0.0,
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: Some(vec2(
+                            SCREEN_WIDTH * scale_factor,
+                            SCREEN_HEIGHT * scale_factor,
+                        )),
+                        ..Default::default()
+                    },
+                );
+            }
+        }
         //draw_text(&get_fps().to_string(), 48.0, 48.0, 32.0, WHITE);
     }
 }

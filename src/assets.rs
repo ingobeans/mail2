@@ -10,6 +10,7 @@ pub struct Assets {
     tileset: Spritesheet,
     pub poi: Animation,
     pub pumpkin_guy_animation: Animation,
+    pub win_screen: Texture2D,
 }
 impl Default for Assets {
     fn default() -> Self {
@@ -26,6 +27,7 @@ impl Default for Assets {
             pumpkin_guy_animation: Animation::from_file(include_bytes!(
                 "../assets/pumpkin_guy.ase"
             )),
+            win_screen: load_ase_texture(include_bytes!("../assets/win_screen.ase"), None),
         }
     }
 }
