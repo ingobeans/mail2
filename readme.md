@@ -13,3 +13,8 @@ project made in rust with macroquad. all assets and code done by myself
 you need rust installed.
 
 standalone: `cargo run`
+
+for web with `basic-http-server`, do:
+```bash
+cargo build --release --target wasm32-unknown-unknown && cp target/wasm32-unknown-unknown/release/pumpkin.wasm web/ && basic-http-server web/
+```

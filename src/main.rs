@@ -193,7 +193,7 @@ impl<'a> PumpkinEngine<'a> {
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "mail2".to_string(),
+        window_title: "pumpkin".to_string(),
         window_width: SCREEN_WIDTH as i32 * 3,
         window_height: SCREEN_HEIGHT as i32 * 3,
         //platform: macroquad::miniquad::conf::Platform {
@@ -206,10 +206,10 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let assets = Assets::default();
-    let mut mail_engine = PumpkinEngine::new(&assets);
+    let mut pumpkin_engine = PumpkinEngine::new(&assets);
 
     loop {
-        mail_engine.update();
+        pumpkin_engine.update();
         next_frame().await
     }
 }
