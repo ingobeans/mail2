@@ -9,6 +9,7 @@ pub struct Assets {
     font: Spritesheet,
     tileset: Spritesheet,
     pub poi: Animation,
+    pub pumpkin_guy_animation: Animation,
 }
 impl Default for Assets {
     fn default() -> Self {
@@ -22,6 +23,9 @@ impl Default for Assets {
                 8.0,
             ),
             poi: Animation::from_file(include_bytes!("../assets/poi.ase")),
+            pumpkin_guy_animation: Animation::from_file(include_bytes!(
+                "../assets/pumpkin_guy.ase"
+            )),
         }
     }
 }

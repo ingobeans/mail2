@@ -22,6 +22,7 @@ struct PumpkinEngine<'a> {
     /// World is only rendered once. It is rendered to a texture that can then be drawn every frame.
     world_camera: Camera2D,
     poi_location: Vec2,
+    pumpkin_guy_animation: Option<f32>,
 }
 
 impl<'a> PumpkinEngine<'a> {
@@ -53,19 +54,24 @@ impl<'a> PumpkinEngine<'a> {
             chunk.draw(assets);
         }
 
+        let poi_location = world.get_interactable_spawn(160).unwrap();
+
         let mut player = Player::new();
         player.pos = vec2(0.0, -8.0);
         player.camera_pos = vec2(0.0, -100.0);
+        player.poi_location = poi_location;
 
         let pixel_camera = create_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
+
         PumpkinEngine {
-            poi_location: world.get_interactable_spawn(160).unwrap(),
+            poi_location,
             frame: 0,
             assets,
             world,
             player,
             pixel_camera,
             world_camera,
+            pumpkin_guy_animation: None,
         }
     }
     fn update(&mut self) {
@@ -89,6 +95,28 @@ impl<'a> PumpkinEngine<'a> {
             WHITE,
             DrawTextureParams::default(),
         );
+        draw_texture(
+            self.assets.poi.get_at_time((get_time() * 1000.0) as u32),
+            self.poi_location.x,
+            self.poi_location.y - 3.0 * 8.0,
+            WHITE,
+        );
+        if let Some(pumpkin_guy_animation) = &mut self.pumpkin_guy_animation {
+            draw_texture(
+                self.assets
+                    .pumpkin_guy_animation
+                    .get_at_time((*pumpkin_guy_animation * 1000.0) as u32),
+                self.poi_location.x,
+                self.poi_location.y - 24.0,
+                WHITE,
+            );
+            *pumpkin_guy_animation += delta_time;
+            if *pumpkin_guy_animation * 1000.0
+                > self.assets.pumpkin_guy_animation.total_length as f32
+            {
+                panic!("wa");
+            }
+        }
         for pumpkin in self.world.pumpkins.iter_mut() {
             pumpkin.draw(self.assets, &self.player.pos, self.player.on_ground);
             pumpkin.update(
@@ -98,33 +126,36 @@ impl<'a> PumpkinEngine<'a> {
             );
         }
         self.player.draw(self.assets);
-        draw_texture(
-            self.assets.poi.get_at_time((get_time() * 1000.0) as u32),
-            self.poi_location.x,
-            self.poi_location.y - 3.0 * 8.0,
-            WHITE,
-        );
-        if self.player.pos.distance(self.poi_location) <= 16.0 {
-            let text = "bring me a pumpkin\nand i will bake you a pie!";
-            draw_rectangle(
-                self.poi_location.x - 6.0 * 8.0,
-                self.poi_location.y - 3.0 * 8.0 + 2.0,
-                ({
-                    let mut s = text.lines().collect::<Vec<&str>>();
-                    s.sort_by(|a, b| b.len().cmp(&a.len()));
-                    s
-                }[0]
-                .len()
-                    + 2) as f32
-                    * 4.0,
-                (text.lines().count() + 2) as f32 * 5.0,
-                WHITE,
-            );
-            self.assets.draw_text(
-                text,
-                self.poi_location.x + 4.0 - 6.0 * 8.0,
-                self.poi_location.y + 5.0 - 3.0 * 8.0 + 2.0,
-            );
+        if self.pumpkin_guy_animation.is_none()
+            && self.player.pos.distance(self.poi_location) <= 16.0
+        {
+            if self.player.carrying.is_none() {
+                let text = "bring me a pumpkin\nand i will bake you a pie!";
+                draw_rectangle(
+                    self.poi_location.x - 6.0 * 8.0,
+                    self.poi_location.y - 3.0 * 8.0 + 2.0,
+                    ({
+                        let mut s = text.lines().collect::<Vec<&str>>();
+                        s.sort_by(|a, b| b.len().cmp(&a.len()));
+                        s
+                    }[0]
+                    .len()
+                        + 2) as f32
+                        * 4.0,
+                    (text.lines().count() + 2) as f32 * 5.0,
+                    WHITE,
+                );
+                self.assets.draw_text(
+                    text,
+                    self.poi_location.x + 4.0 - 6.0 * 8.0,
+                    self.poi_location.y + 5.0 - 3.0 * 8.0 + 2.0,
+                );
+            } else {
+                if show_tooltip("e: give pumpkin", self.assets, &self.player) {
+                    self.pumpkin_guy_animation = Some(0.0);
+                    self.player.carrying = None;
+                }
+            }
         }
 
         set_default_camera();

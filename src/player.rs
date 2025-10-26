@@ -15,6 +15,8 @@ pub struct Player {
     pub on_ground: bool,
     pub jump_frames: f32,
 
+    pub poi_location: Vec2,
+
     pub carrying: Option<Pumpkin>,
 
     body_animation: Animation,
@@ -29,6 +31,7 @@ impl Player {
             pos: Vec2::ZERO,
             camera_pos: Vec2::ZERO,
             velocity: Vec2::ZERO,
+            poi_location: Vec2::ZERO,
             anim_frame: 0.0,
             jump_frames: 0.0,
             facing_right: true,
@@ -85,7 +88,7 @@ impl Player {
                     self.carrying = Some(pumpkin);
                 }
             }
-        } else if interacted {
+        } else if interacted && self.pos.distance(self.poi_location) > 16.0 {
             let mut pumpkin = self.carrying.take().unwrap();
             let input_dir = get_input_axis();
             let mut dir = Vec2::ZERO;

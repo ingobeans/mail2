@@ -362,7 +362,7 @@ dependencies = [
 
 [[package]]
 name = "pumpkin"
-version = "0.1.21"
+version = "0.1.22"
 dependencies = [
  "asefile",
  "hashmap_macro",

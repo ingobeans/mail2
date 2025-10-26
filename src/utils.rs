@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
 
+use crate::{assets::Assets, player::Player};
+
 pub const SCREEN_WIDTH: f32 = 256.0;
 pub const SCREEN_HEIGHT: f32 = 144.0;
 
@@ -19,6 +21,29 @@ pub fn create_camera(w: f32, h: f32) -> Camera2D {
         zoom: Vec2::new(1.0 / w * 2.0, 1.0 / h * 2.0),
         ..Default::default()
     }
+}
+
+pub fn show_tooltip(text: &str, assets: &Assets, player: &Player) -> bool {
+    let padding = 2.0;
+    let margin = 2.0;
+
+    let width = text.len() as f32 * 4.0 + padding * 2.0;
+    let height = 5.0 + padding * 2.0;
+    let x = (player.camera_pos.x - width / 2.0 + 4.0).floor();
+    let y = (player.camera_pos.y - height - margin + SCREEN_HEIGHT / 2.0).floor();
+    draw_rectangle(x, y, width, height, Color::from_hex(0x3b1725));
+    draw_rectangle(
+        x + 1.0,
+        y + 1.0,
+        width - 2.0,
+        height - 2.0,
+        Color::from_hex(0xfffc40),
+    );
+    assets.draw_text(text, x + padding, y + padding);
+    if is_key_pressed(KeyCode::E) {
+        return true;
+    }
+    false
 }
 
 pub fn get_input_axis() -> Vec2 {
